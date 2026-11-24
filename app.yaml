@@ -1,0 +1,11 @@
+command: ["npm", "run", "start"]
+runtime: nodejs22
+
+env:
+  - name: DATABRICKS_SERVING_ENDPOINT
+    valueFrom: serving-endpoint
+  - name: CHAT_GREETING
+    value: "Hi! I'm the Accounting Request Triage Assistant. I can help you determine if your issue can be resolved by Transaction Management, or if it needs to be routed to Accounting or another team. What's your question?"
+  # Uncomment to enable feedback UI
+  # - name: MLFLOW_EXPERIMENT_ID
+  #   valueFrom: experiment

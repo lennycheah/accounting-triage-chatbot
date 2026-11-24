@@ -1,0 +1,56 @@
+bundle:
+  name: accounting-triage-chatbot
+
+variables:
+  serving_endpoint_name:
+    description: "Name of the model serving endpoint for the Accounting Triage Agent"
+    # TODO: Set this to your deployed agent serving endpoint name
+    # default: "accounting-triage-agent"
+  database_instance_name:
+    description: "Base name of the Lakebase database instance"
+    default: "acct-triage-lakebase"
+  resource_name_suffix:
+    description: "Suffix for resource names"
+
+resources:
+  database_instances:
+    # Uncomment to enable persistent chat history
+    # chatbot_lakebase:
+    #   name: ${var.database_instance_name}-${var.resource_name_suffix}
+    #   capacity: CU_1
+
+  apps:
+    accounting_triage_chatbot:
+      name: acct-triage-${var.resource_name_suffix}
+      description: "Accounting Request Triage Chatbot - replaces accounting@compass.com for ticket routing"
+      source_code_path: .
+      resources:
+        - name: serving-endpoint
+          description: "Databricks serving endpoint for the Accounting Triage Agent"
+          serving_endpoint:
+            name: ${var.serving_endpoint_name}
+            permission: CAN_QUERY
+        # Uncomment to enable persistent chat history
+        # - name: database
+        #   description: "Lakebase database instance for chat history"
+        #   database:
+        #     database_name: databricks_postgres
+        #     instance_name: ${resources.database_instances.chatbot_lakebase.name}
+        #     permission: CAN_CONNECT_AND_CREATE
+
+targets:
+  dev:
+    mode: development
+    default: true
+    variables:
+      resource_name_suffix: dev-${workspace.current_user.domain_friendly_name}
+
+  staging:
+    mode: production
+    variables:
+      resource_name_suffix: "staging"
+
+  prod:
+    mode: production
+    variables:
+      resource_name_suffix: "prod"
